@@ -1,14 +1,25 @@
 import { useEffect } from "react";
 import { RootState, useAppDispatch } from "../../store/store";
-import { fetchProduct, fetchProductIds } from "../../store/product.slice";
+import {
+  fetchFilterProducts,
+  fetchProduct,
+  fetchProductIds,
+} from "../../store/product.slice";
 import { useSelector } from "react-redux";
 import { TableColumn } from "../../UI/Table/ListTable";
+import { ProductFiltering } from "../../UI/Input/FilteringForm";
+import { Spin } from "antd";
+import { Alert } from "antd";
 
 export const ProductList = () => {
   const dispatch = useAppDispatch();
-  const { productIds, products, isLoading } = useSelector(
-    (state: RootState) => state.products
-  );
+  const {
+    productIds,
+    products,
+    isLoading,
+    filteredProductsIds,
+    filteredProducts,
+  } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
     dispatch(fetchProductIds());
@@ -24,13 +35,37 @@ export const ProductList = () => {
     }
   }, [dispatch, productIds]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!products) return <div>No data</div>;
-  if (!productIds) return <div>No data product ID</div>;
+  console.log(filteredProductsIds, "filteredProductsIds");
+
+  useEffect(() => {
+    if (filteredProductsIds) {
+      dispatch(fetchFilterProducts({ ids: filteredProductsIds }));
+    }
+  }, [dispatch, filteredProductsIds]);
+
+  if (isLoading)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "60vh",
+        }}
+      >
+        <Spin style={{ padding: 40 }} size="large" />
+      </div>
+    );
+
+  if (!products) return <Alert message="No data" type="info" />;
+  if (!productIds) return <Alert message="No data product ID" type="info" />;
+  if (!filteredProducts && filteredProductsIds)
+    return <Alert message="Error fetching filtered products" type="error" />;
 
   return (
     <div>
-      <TableColumn data={products ?? []} />
+      <ProductFiltering />
+      <TableColumn data={filteredProducts ? filteredProducts : products} />
     </div>
   );
 };

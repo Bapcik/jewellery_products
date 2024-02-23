@@ -8,14 +8,20 @@ interface IInitialState {
   filter: IFilter | null;
   products: IProduct[] | null;
   productIds: string[] | null;
+  filteredProductsIds: string[] | null;
+  filteredProducts: IProduct[] | null;
   isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: IInitialState = {
   filter: null,
   products: null,
   productIds: null,
+  filteredProductsIds: null,
+  filteredProducts: null,
   isLoading: false,
+  error: null,
 };
 
 const password = md5(
@@ -74,29 +80,66 @@ export const fetchProduct = createAsyncThunk(
   }
 );
 
-export const filterProducts = createAsyncThunk<IProduct[], IFilter>(
+export const filterProducts = createAsyncThunk(
   "products/filterProducts",
-  async (filters) => {
-    const { name, price, brand } = filters;
+  async (
+    variables: { name: string; price: number; brand: string },
+    { rejectWithValue }
+  ) => {
+    const { name, price, brand } = variables;
 
     const params: any = {};
     if (name) params.product = name;
     if (price) params.price = price;
     if (brand) params.brand = brand;
-
-    const response = await axiosInstance.post(
-      "/",
-      {
-        action: "filter",
-        params,
-      },
-      {
-        headers: {
-          "X-Auth": password,
+    console.log(params, "params");
+    try {
+      const response = await axiosInstance.post(
+        "/",
+        {
+          action: "filter",
+          params,
         },
-      }
-    );
-    return response.data.result;
+        {
+          headers: {
+            "X-Auth": password,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching filter products ids:", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchFilterProducts = createAsyncThunk(
+  "products/fetchFilterProducts",
+  async (variables: { ids: string[] }, { rejectWithValue }) => {
+    const { ids } = variables;
+
+    try {
+      const response = await axiosInstance.post(
+        "/",
+        {
+          action: "get_items",
+          params: {
+            ids,
+          },
+        },
+        {
+          headers: {
+            "X-Auth": password,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching filter products:", error);
+      return rejectWithValue(error);
+    }
   }
 );
 
@@ -106,16 +149,6 @@ export const productsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProduct.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(fetchProduct.fulfilled, (state, action) => {
-        state.products = action.payload.result;
-        state.isLoading = false;
-      })
-      .addCase(fetchProduct.rejected, (state) => {
-        state.isLoading = false;
-      })
       .addCase(fetchProductIds.pending, (state) => {
         state.isLoading = true;
       })
@@ -123,18 +156,43 @@ export const productsSlice = createSlice({
         state.productIds = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(fetchProductIds.rejected, (state) => {
+      .addCase(fetchProductIds.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(fetchProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchProduct.fulfilled, (state, action) => {
+        state.products = action.payload.result;
+        state.isLoading = false;
+      })
+      .addCase(fetchProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
       .addCase(filterProducts.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(filterProducts.fulfilled, (state, action) => {
-        state.products = action.payload;
+        state.filteredProductsIds = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(filterProducts.rejected, (state) => {
+      .addCase(filterProducts.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchFilterProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchFilterProducts.fulfilled, (state, action) => {
+        state.filteredProducts = action.payload.result;
+        state.isLoading = false;
+      })
+      .addCase(fetchFilterProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

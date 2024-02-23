@@ -20,27 +20,21 @@ export const TableColumn: FC<TableColumnProps> = ({ data }) => {
       title: "Название",
       dataIndex: "product",
       key: "product",
-      width: '40%',
-      ...getColumnSearchProps('name'),
+      width: "40%",
     },
     {
       title: "Цена",
       dataIndex: "price",
       key: "price",
-      width: '20%',
-      ...getColumnSearchProps('price'),
+      width: "10%",
     },
     {
       title: "Бренд",
       dataIndex: "brand",
       key: "brand",
-      width: '30%',
-      ...getColumnSearchProps('brand'),
-
+      width: "15%",
     },
   ];
-
-  
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
