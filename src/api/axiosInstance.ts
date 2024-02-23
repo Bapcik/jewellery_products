@@ -1,5 +1,6 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: `http://api.valantis.store:40000`,
+  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL,
 });
