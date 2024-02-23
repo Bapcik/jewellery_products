@@ -1,5 +1,7 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL: "http://api.valantis.store:40000",
+  baseURL: process.env.NODE_ENV === 'production' ? '/' : 'http://api.valantis.store:40000',
 });
+
+
