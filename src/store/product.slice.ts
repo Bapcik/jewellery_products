@@ -32,7 +32,7 @@ export const fetchProductIds = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://api.valantis.store:40000/",
+        "https://api.valantis.store:41000/",
         {
           action: "get_ids",
           params: { limit: 400 },
@@ -58,7 +58,7 @@ export const fetchProduct = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        "http://api.valantis.store:40000/",
+        "https://api.valantis.store:41000/",
         {
           action: "get_items",
           params: {
@@ -94,7 +94,7 @@ export const filterProducts = createAsyncThunk(
     console.log(params, "params");
     try {
       const response = await axios.post(
-        "http://api.valantis.store:40000/",
+        "https://api.valantis.store:41000/",
         {
           action: "filter",
           params,
@@ -121,7 +121,7 @@ export const fetchFilterProducts = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        "http://api.valantis.store:40000/",
+        "https://api.valantis.store:41000/",
         {
           action: "get_items",
           params: {
