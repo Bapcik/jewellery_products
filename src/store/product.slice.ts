@@ -36,7 +36,7 @@ export const fetchProductIds = createAsyncThunk(
         "/",
         {
           action: "get_ids",
-          params: { limit: 2000 },
+          params: { limit: 400 },
         },
         {
           headers: {
