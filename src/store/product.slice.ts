@@ -1,17 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-// import axios from "axios";
 import { IProduct } from "../interfaces/IProduct";
 import { axiosInstance } from "../api/axiosInstance";
 import md5 from "md5";
-// import { message } from "antd";
+import { IFilter } from "../interfaces/IFilter";
 
 interface IInitialState {
+  filter: IFilter | null;
   products: IProduct[] | null;
   productIds: string[] | null;
   isLoading: boolean;
 }
 
 const initialState: IInitialState = {
+  filter: null,
   products: null,
   productIds: null,
   isLoading: false,
@@ -23,47 +24,71 @@ const password = md5(
 
 export const fetchProductIds = createAsyncThunk(
   "products/fetchProductIds",
-  async () => {
-    // try {
-    const response = await axiosInstance.post(
-      "/",
-      {
-        action: "get_ids",
-        params: { limit: 50 },
-      },
-      {
-        headers: {
-          "X-Auth": password,
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/",
+        {
+          action: "get_ids",
+          params: { limit: 2000 },
         },
-      }
-    );
-    return response.data;
-    // } catch (error) {
-    //   if (axios.isAxiosError(error) && error.response) {
-    //     const serverMessage = error.response.data.message;
-    //     message.error(serverMessage || "Произошла ошибка при запросе товара.");
-    //   } else {
-    //     message.error("Произошла неизвестная ошибка.");
-    //   }
-    //   throw error;
-    // }
+        {
+          headers: {
+            "X-Auth": password,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product ids:", error);
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const fetchProduct = createAsyncThunk(
   "products/fetchProduct",
-  async (variables: { ids: string[]; searchText: string }) => {
-    const { ids, searchText } = variables;
+  async (variables: { ids: string[] }, { rejectWithValue }) => {
+    const { ids } = variables;
 
-    // try {
+    try {
+      const response = await axiosInstance.post(
+        "/",
+        {
+          action: "get_items",
+          params: {
+            ids,
+          },
+        },
+        {
+          headers: {
+            "X-Auth": password,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const filterProducts = createAsyncThunk<IProduct[], IFilter>(
+  "products/filterProducts",
+  async (filters) => {
+    const { name, price, brand } = filters;
+
+    const params: any = {};
+    if (name) params.product = name;
+    if (price) params.price = price;
+    if (brand) params.brand = brand;
+
     const response = await axiosInstance.post(
       "/",
       {
-        action: "get_items",
-        params: {
-          ids,
-          filter: searchText,
-        },
+        action: "filter",
+        params,
       },
       {
         headers: {
@@ -71,16 +96,7 @@ export const fetchProduct = createAsyncThunk(
         },
       }
     );
-    return response.data;
-    // } catch (error) {
-    //   if (axios.isAxiosError(error) && error.response) {
-    //     const serverMessage = error.response.data.message;
-    //     message.error(serverMessage || "Произошла ошибка при запросе товара.");
-    //   } else {
-    //     message.error("Произошла неизвестная ошибка.");
-    //   }
-    //   throw error;
-    // }
+    return response.data.result;
   }
 );
 
@@ -90,7 +106,6 @@ export const productsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
       .addCase(fetchProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -99,7 +114,7 @@ export const productsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchProduct.rejected, (state) => {
-        state.isLoading = true;
+        state.isLoading = false;
       })
       .addCase(fetchProductIds.pending, (state) => {
         state.isLoading = true;
@@ -109,7 +124,17 @@ export const productsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchProductIds.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(filterProducts.pending, (state) => {
         state.isLoading = true;
+      })
+      .addCase(filterProducts.fulfilled, (state, action) => {
+        state.products = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(filterProducts.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
