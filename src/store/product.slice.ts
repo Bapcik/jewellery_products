@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IProduct } from "../interfaces/IProduct";
-import { axiosInstance } from "../api/axiosInstance";
+// import { axiosInstance } from "../api/axiosInstance";
 import md5 from "md5";
 import { IFilter } from "../interfaces/IFilter";
+import axios from 'axios'
 
 interface IInitialState {
   filter: IFilter | null;
@@ -30,8 +31,8 @@ export const fetchProductIds = createAsyncThunk(
   "products/fetchProductIds",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        "/",
+      const response = await axios.post(
+        "http://api.valantis.store:40000/",
         {
           action: "get_ids",
           params: { limit: 400 },
@@ -56,8 +57,8 @@ export const fetchProduct = createAsyncThunk(
     const { ids } = variables;
 
     try {
-      const response = await axiosInstance.post(
-        "/",
+      const response = await axios.post(
+        "http://api.valantis.store:40000/",
         {
           action: "get_items",
           params: {
@@ -92,8 +93,8 @@ export const filterProducts = createAsyncThunk(
     if (brand) params.brand = brand;
     console.log(params, "params");
     try {
-      const response = await axiosInstance.post(
-        "/",
+      const response = await axios.post(
+        "http://api.valantis.store:40000/",
         {
           action: "filter",
           params,
@@ -119,8 +120,8 @@ export const fetchFilterProducts = createAsyncThunk(
     const { ids } = variables;
 
     try {
-      const response = await axiosInstance.post(
-        "/",
+      const response = await axios.post(
+        "http://api.valantis.store:40000/",
         {
           action: "get_items",
           params: {
