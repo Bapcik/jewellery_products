@@ -11,7 +11,6 @@ interface IInitialState {
   filteredProductsIds: string[] | null;
   filteredProducts: IProduct[] | null;
   isLoading: boolean;
-  error: string | null;
 }
 
 const initialState: IInitialState = {
@@ -21,7 +20,6 @@ const initialState: IInitialState = {
   filteredProductsIds: null,
   filteredProducts: null,
   isLoading: false,
-  error: null,
 };
 
 const password = md5(
@@ -156,9 +154,8 @@ export const productsSlice = createSlice({
         state.productIds = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(fetchProductIds.rejected, (state, action) => {
+      .addCase(fetchProductIds.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
       })
 
       .addCase(fetchProduct.pending, (state) => {
@@ -168,9 +165,8 @@ export const productsSlice = createSlice({
         state.products = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(fetchProduct.rejected, (state, action) => {
+      .addCase(fetchProduct.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
       })
       .addCase(filterProducts.pending, (state) => {
         state.isLoading = true;
@@ -179,9 +175,8 @@ export const productsSlice = createSlice({
         state.filteredProductsIds = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(filterProducts.rejected, (state, action) => {
+      .addCase(filterProducts.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
       })
       .addCase(fetchFilterProducts.pending, (state) => {
         state.isLoading = true;
@@ -190,9 +185,8 @@ export const productsSlice = createSlice({
         state.filteredProducts = action.payload.result;
         state.isLoading = false;
       })
-      .addCase(fetchFilterProducts.rejected, (state, action) => {
+      .addCase(fetchFilterProducts.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
       });
   },
 });
