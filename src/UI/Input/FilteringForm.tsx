@@ -28,7 +28,7 @@ export const ProductFiltering = () => {
   };
 
   return (
-    <div>
+    <div style={{ margin: 40 }}>
       <Space>
         <Input
           placeholder="Название"
