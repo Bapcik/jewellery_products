@@ -12,8 +12,8 @@ interface IInitialState {
 }
 
 const initialState: IInitialState = {
-  productIds: null,
   products: null,
+  productIds: null,
   isLoading: false,
 };
 
@@ -25,19 +25,19 @@ export const fetchProductIds = createAsyncThunk(
   "products/fetchProductIds",
   async () => {
     // try {
-      const response = await axiosInstance.post(
-        "/",
-        {
-          action: "get_ids",
-          params: { offset: 0, limit: 51 },
+    const response = await axiosInstance.post(
+      "/",
+      {
+        action: "get_ids",
+        params: { limit: 50 },
+      },
+      {
+        headers: {
+          "X-Auth": password,
         },
-        {
-          headers: {
-            "X-Auth": password,
-          },
-        }
-      );
-      return response.data;
+      }
+    );
+    return response.data;
     // } catch (error) {
     //   if (axios.isAxiosError(error) && error.response) {
     //     const serverMessage = error.response.data.message;
@@ -52,31 +52,26 @@ export const fetchProductIds = createAsyncThunk(
 
 export const fetchProduct = createAsyncThunk(
   "products/fetchProduct",
-  async (variables: {
-    id: string;
-    pageSize: number;
-    searchText: string;
-  }) => {
-    const { id, pageSize, searchText } = variables;
+  async (variables: { ids: string[]; searchText: string }) => {
+    const { ids, searchText } = variables;
 
     // try {
-      const response = await axiosInstance.post(
-        "/",
-        {
-          action: "get_items",
-          params: {
-            ids: [id],
-            limit: pageSize,
-            filter: searchText,
-          },
+    const response = await axiosInstance.post(
+      "/",
+      {
+        action: "get_items",
+        params: {
+          ids,
+          filter: searchText,
         },
-        {
-          headers: {
-            "X-Auth": password,
-          },
-        }
-      );
-      return response.data;
+      },
+      {
+        headers: {
+          "X-Auth": password,
+        },
+      }
+    );
+    return response.data;
     // } catch (error) {
     //   if (axios.isAxiosError(error) && error.response) {
     //     const serverMessage = error.response.data.message;
@@ -95,16 +90,7 @@ export const productsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProductIds.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(fetchProductIds.fulfilled, (state, action) => {
-        state.productIds = action.payload.result;
-        state.isLoading = false;
-      })
-      .addCase(fetchProductIds.rejected, (state) => {
-        state.isLoading = true;
-      })
+
       .addCase(fetchProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -113,6 +99,16 @@ export const productsSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchProduct.rejected, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchProductIds.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchProductIds.fulfilled, (state, action) => {
+        state.productIds = action.payload.result;
+        state.isLoading = false;
+      })
+      .addCase(fetchProductIds.rejected, (state) => {
         state.isLoading = true;
       });
   },

@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { productsSlice } from "./product.slice";
 
+
 export const store = configureStore({
   reducer: {
     products: productsSlice.reducer,

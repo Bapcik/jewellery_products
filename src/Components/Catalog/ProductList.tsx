@@ -6,25 +6,14 @@ import { useSelector } from "react-redux";
 
 export const ProductList = () => {
   const dispatch = useAppDispatch();
-  const [ids, setIds] = useState(new Set<string>());
-
-  const { productIds, products, isLoading } = useSelector(
-    (state: RootState) => state.products
-  );
-  console.log(productIds);
 
   useEffect(() => {
     dispatch(fetchProductIds());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (productIds) {
-      const newIds = productIds.filter((id: string) => !ids.has(id));
-      if (newIds.length > 0) {
-        setIds((prevIds) => new Set([...prevIds, ...newIds]));
-      }
-    }
-  }, [productIds, ids]);
+  const { productIds, products, isLoading } = useSelector(
+    (state: RootState) => state.products
+  );
 
   const pageSize = 50;
   const [page, setPage] = useState(1);
@@ -39,47 +28,38 @@ export const ProductList = () => {
   };
 
   const columns = [
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    // },
     {
       title: "Название",
       dataIndex: "product",
-      key: "product",
+      key: "id",
     },
     {
       title: "Цена",
       dataIndex: "price",
-      key: "price",
+      key: "id",
     },
     {
       title: "Бренд",
       dataIndex: "brand",
-      key: "brand",
+      key: "id",
     },
   ];
 
   useEffect(() => {
-    if (productIds && productIds.length > 0) {
-      productIds.forEach((id) => {
-        dispatch(fetchProduct({ id, pageSize, searchText }));
-      });
+    if (productIds) {
+      dispatch(fetchProduct({ ids: productIds, searchText }));
     }
-  }, [dispatch, productIds, pageSize, searchText]);
+  }, [dispatch, productIds, searchText]);
+  
+  
+  
 
   if (isLoading) return <div>Loading...</div>;
   if (!products && !productIds) return <div>No data</div>;
+  if (!productIds) return <div>No data</div>;
 
   return (
     <div>
-      {/* <ul>
-        {[...ids].map((productId) => (
-          <li key={productId}>{productId}</li>
-        ))}
-      </ul> */}
-
       <Space direction="vertical" style={{ marginBottom: 16 }}>
         <Input
           placeholder="Поиск по названию"
