@@ -35,8 +35,6 @@ export const ProductList = () => {
     }
   }, [dispatch, productIds]);
 
-  console.log(filteredProductsIds, "filteredProductsIds");
-
   useEffect(() => {
     if (filteredProductsIds) {
       dispatch(fetchFilterProducts({ ids: filteredProductsIds }));
@@ -65,7 +63,7 @@ export const ProductList = () => {
   return (
     <div>
       <ProductFiltering />
-      <TableColumn data={filteredProducts ? filteredProducts : products} />
+      <TableColumn  data={filteredProducts ? filteredProducts : products} />
     </div>
   );
 };

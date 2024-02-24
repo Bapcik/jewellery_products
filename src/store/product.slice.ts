@@ -1,12 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IProduct } from "../interfaces/IProduct";
-// import { axiosInstance } from "../api/axiosInstance";
+import { axiosInstance } from "../api/axiosInstance";
 import md5 from "md5";
-import { IFilter } from "../interfaces/IFilter";
-import axios from 'axios'
+
 
 interface IInitialState {
-  filter: IFilter | null;
   products: IProduct[] | null;
   productIds: string[] | null;
   filteredProductsIds: string[] | null;
@@ -15,7 +13,6 @@ interface IInitialState {
 }
 
 const initialState: IInitialState = {
-  filter: null,
   products: null,
   productIds: null,
   filteredProductsIds: null,
@@ -31,8 +28,8 @@ export const fetchProductIds = createAsyncThunk(
   "products/fetchProductIds",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "https://api.valantis.store:41000/",
+      const response = await axiosInstance.post(
+        "/",
         {
           action: "get_ids",
           params: { limit: 400 },
@@ -57,8 +54,8 @@ export const fetchProduct = createAsyncThunk(
     const { ids } = variables;
 
     try {
-      const response = await axios.post(
-        "https://api.valantis.store:41000/",
+      const response = await axiosInstance.post(
+        "/",
         {
           action: "get_items",
           params: {
@@ -93,8 +90,8 @@ export const filterProducts = createAsyncThunk(
     if (brand) params.brand = brand;
     console.log(params, "params");
     try {
-      const response = await axios.post(
-        "https://api.valantis.store:41000/",
+      const response = await axiosInstance.post(
+        "/",
         {
           action: "filter",
           params,
@@ -120,8 +117,8 @@ export const fetchFilterProducts = createAsyncThunk(
     const { ids } = variables;
 
     try {
-      const response = await axios.post(
-        "https://api.valantis.store:41000/",
+      const response = await axiosInstance.post(
+        "/",
         {
           action: "get_items",
           params: {
